@@ -1,14 +1,18 @@
 from pathlib import Path
 import pyRofex
+import os
+from dotenv import load_dotenv
 
 # === Credenciales y entorno ===
-ENV      = pyRofex.Environment.LIVE
-USUARIO  = "20348777670"
-PASSWORD = "5TBeZ9hV_"
-CUENTA   = "44325"
 
-REST_URL = "https://api.veta.xoms.com.ar/"
-WS_URL   = "wss://api.veta.xoms.com.ar/"
+ENV      = os.getenv("PYROFEX_ENV", "LIVE")
+USUARIO  = os.getenv("PYROFEX_USER")
+PASSWORD = os.getenv("PYROFEX_PASS")
+CUENTA   = os.getenv("PYROFEX_ACCOUNT")
+
+REST_URL = os.getenv("REST_URL", "https://api.veta.xoms.com.ar/")
+WS_URL   = os.getenv("WS_URL", "wss://api.veta.xoms.com.ar/")
+
 
 SAVE_TICKERS   = Path(__file__).with_name("tickers_saved.txt")
 SAVE_PANEL_CFG = Path(__file__).with_name("panel_settings.json")
