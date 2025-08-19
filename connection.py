@@ -3,8 +3,9 @@ import time
 import pyRofex
 from typing import Any, Dict, List
 from state import STATE
-from config import ENV, REST_URL, WS_URL, USUARIO, PASSWORD, CUENTA
+from config import ENV, REST_URL, WS_URL, USUARIO, PASSWORD, CUENTA, missing_env_vars
 from utils import save_tickers_list, load_saved_tickers
+import panel as pn
 
 def _put(payload: Dict[str, Any]):
     if STATE.msg_queue:
@@ -21,8 +22,18 @@ def exception_handler(e):          _put({"type":"exception","data":str(getattr(e
 def connect_pyrofex():
     if STATE.connected:
         auto_subscribe_after_connect(); return
+
+    # Validación previa: si faltan credenciales, no intentes conectar
+    missing = missing_env_vars()
+    if missing:
+        # Mostrá un aviso claro en consola (y podés agregar un pn.state.notifications si querés)
+        print(f"[CONFIG] Faltan variables en .env: {', '.join(missing)}")
+        return
+
+    # Setear endpoints y abrir WS
     pyRofex._set_environment_parameter("url", REST_URL, ENV)
     pyRofex._set_environment_parameter("ws",  WS_URL,   ENV)
+
     STATE.msg_queue = queue.Queue()
     pyRofex.initialize(USUARIO, PASSWORD, CUENTA, ENV)
     pyRofex.init_websocket_connection(
@@ -33,6 +44,9 @@ def connect_pyrofex():
     )
     STATE.connected = True
     auto_subscribe_after_connect()
+    if missing:
+        pn.state.notifications.error(f"Faltan variables en .env: {', '.join(missing)}")
+        return
 
 def disconnect_pyrofex():
     try: pyRofex.close_websocket_connection()
