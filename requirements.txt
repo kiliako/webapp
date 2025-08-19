@@ -1,0 +1,7 @@
+numpy
+pandas
+panel
+bokeh
+requests
+pyRofex
+scipy
