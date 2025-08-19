@@ -3,7 +3,7 @@ import time
 import pyRofex
 from typing import Any, Dict, List
 from state import STATE
-from config import ENV, REST_URL, WS_URL, USUARIO, PASSWORD, CUENTA, missing_env_vars
+from config import REST_URL, WS_URL, USUARIO, PASSWORD, CUENTA, missing_env_vars
 from utils import save_tickers_list, load_saved_tickers
 import panel as pn
 
@@ -31,11 +31,11 @@ def connect_pyrofex():
         return
 
     # Setear endpoints y abrir WS
-    pyRofex._set_environment_parameter("url", REST_URL, ENV)
-    pyRofex._set_environment_parameter("ws",  WS_URL,   ENV)
+    pyRofex._set_environment_parameter("url", REST_URL, pyRofex.Environment.LIVE)
+    pyRofex._set_environment_parameter("ws",  WS_URL,   pyRofex.Environment.LIVE)
 
     STATE.msg_queue = queue.Queue()
-    pyRofex.initialize(USUARIO, PASSWORD, CUENTA, ENV)
+    pyRofex.initialize(USUARIO, PASSWORD, CUENTA, pyRofex.Environment.LIVE)
     pyRofex.init_websocket_connection(
         market_data_handler=market_data_handler,
         order_report_handler=order_report_handler,
