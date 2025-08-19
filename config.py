@@ -8,7 +8,7 @@ from pathlib import Path
 load_dotenv(find_dotenv())
 
 # --- Mapear el nombre a enum (robusto) ---
-PYROFEX_ENV="LIVE"
+ENV = pyRofex.Environment.LIVE
 
 # --- Credenciales ---
 USUARIO  = os.getenv("PYROFEX_USER") or ""

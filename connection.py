@@ -3,7 +3,7 @@ import time
 import pyRofex
 from typing import Any, Dict, List
 from state import STATE
-from config import REST_URL, WS_URL, USUARIO, PASSWORD, CUENTA, missing_env_vars
+from config import ENV, REST_URL, WS_URL, USUARIO, PASSWORD, CUENTA
 from utils import save_tickers_list, load_saved_tickers
 import panel as pn
 
@@ -23,19 +23,14 @@ def connect_pyrofex():
     if STATE.connected:
         auto_subscribe_after_connect(); return
 
-    # Validación previa: si faltan credenciales, no intentes conectar
-    missing = missing_env_vars()
-    if missing:
-        # Mostrá un aviso claro en consola (y podés agregar un pn.state.notifications si querés)
-        print(f"[CONFIG] Faltan variables en .env: {', '.join(missing)}")
-        return
 
     # Setear endpoints y abrir WS
-    pyRofex._set_environment_parameter("url", REST_URL, pyRofex.Environment.LIVE)
-    pyRofex._set_environment_parameter("ws",  WS_URL,   pyRofex.Environment.LIVE)
+    pyRofex._set_environment_parameter("url", REST_URL, ENV)
+    pyRofex._set_environment_parameter("ws",  WS_URL,   ENV)
 
     STATE.msg_queue = queue.Queue()
-    pyRofex.initialize(USUARIO, PASSWORD, CUENTA, pyRofex.Environment.LIVE)
+    print(f"[pyRofex] init: user={USUARIO}, account={CUENTA}, env={ENV}")
+    pyRofex.initialize(USUARIO, PASSWORD, CUENTA, ENV)
     pyRofex.init_websocket_connection(
         market_data_handler=market_data_handler,
         order_report_handler=order_report_handler,
@@ -44,9 +39,7 @@ def connect_pyrofex():
     )
     STATE.connected = True
     auto_subscribe_after_connect()
-    if missing:
-        pn.state.notifications.error(f"Faltan variables en .env: {', '.join(missing)}")
-        return
+    print("[pyRofex] connected")
 
 def disconnect_pyrofex():
     try: pyRofex.close_websocket_connection()
